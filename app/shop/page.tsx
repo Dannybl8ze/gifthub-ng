@@ -7,34 +7,37 @@ import {
   getOccasion,
 } from "@/lib/mock-data";
 import { ProductGrid } from "@/components/product-card";
-import { CloseIcon, FilterIcon } from "@/components/icons";
+import { CloseIcon, FilterIcon, SearchIcon } from "@/components/icons";
 
 interface PageProps {
-  searchParams: Promise<{ group?: string; occasion?: string }>;
+  searchParams: Promise<{ group?: string; occasion?: string; q?: string }>;
 }
 
 export default async function ShopPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const group = sp.group ?? null;
   const occasion = sp.occasion ?? null;
+  const q = sp.q?.trim() || null;
 
-  const products = filterProducts({ group, occasion });
+  const products = filterProducts({ group, occasion, q });
   const groupObj = group ? getConsumerGroup(group) : null;
   const occasionObj = occasion ? getOccasion(occasion) : null;
 
-  const heading =
-    groupObj && occasionObj
-      ? `${occasionObj.name} gifts for ${groupObj.name.toLowerCase()}`
-      : groupObj
-      ? `Gifts for ${groupObj.name.toLowerCase()}`
-      : occasionObj
-      ? `${occasionObj.name} gifts`
-      : "All gifts";
+  const heading = q
+    ? `Search results for "${q}"`
+    : groupObj && occasionObj
+    ? `${occasionObj.name} gifts for ${groupObj.name.toLowerCase()}`
+    : groupObj
+    ? `Gifts for ${groupObj.name.toLowerCase()}`
+    : occasionObj
+    ? `${occasionObj.name} gifts`
+    : "All gifts";
 
-  function chipHref(remove: "group" | "occasion") {
+  function chipHref(remove: "group" | "occasion" | "q") {
     const params = new URLSearchParams();
     if (remove !== "group" && group) params.set("group", group);
     if (remove !== "occasion" && occasion) params.set("occasion", occasion);
+    if (remove !== "q" && q) params.set("q", q);
     return `/shop${params.toString() ? `?${params.toString()}` : ""}`;
   }
 
@@ -47,7 +50,16 @@ export default async function ShopPage({ searchParams }: PageProps) {
       params.set("occasion", slug);
       if (group) params.set("group", group);
     }
+    if (q) params.set("q", q);
     return `/shop?${params.toString()}`;
+  }
+
+  function clearHref(kind: "group" | "occasion") {
+    const params = new URLSearchParams();
+    if (kind === "group" && occasion) params.set("occasion", occasion);
+    if (kind === "occasion" && group) params.set("group", group);
+    if (q) params.set("q", q);
+    return `/shop${params.toString() ? `?${params.toString()}` : ""}`;
   }
 
   return (
@@ -62,9 +74,15 @@ export default async function ShopPage({ searchParams }: PageProps) {
       </header>
 
       {/* Active filter chips */}
-      {(groupObj || occasionObj) && (
+      {(groupObj || occasionObj || q) && (
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <span className="text-xs text-ink-muted mr-1">Active filters:</span>
+          {q && (
+            <Link href={chipHref("q")} className="chip-gold cursor-pointer hover:bg-gold/30 transition-colors">
+              "{q}"
+              <CloseIcon className="w-3 h-3" />
+            </Link>
+          )}
           {groupObj && (
             <Link href={chipHref("group")} className="chip cursor-pointer hover:bg-brand-100 transition-colors">
               {groupObj.name}
@@ -86,6 +104,25 @@ export default async function ShopPage({ searchParams }: PageProps) {
       <div className="mt-8 grid lg:grid-cols-[260px_minmax(0,1fr)] gap-8">
         {/* Sidebar filters */}
         <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
+          <form action="/shop" method="get" className="card p-5">
+            {group && <input type="hidden" name="group" value={group} />}
+            {occasion && <input type="hidden" name="occasion" value={occasion} />}
+            <label htmlFor="shop-q" className="sr-only">
+              Search gifts
+            </label>
+            <div className="relative">
+              <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
+              <input
+                id="shop-q"
+                type="search"
+                name="q"
+                defaultValue={q ?? ""}
+                placeholder="Search this catalogue…"
+                className="input pl-10"
+              />
+            </div>
+          </form>
+
           <div className="card p-5">
             <h3 className="flex items-center gap-2 font-display font-semibold text-ink mb-3">
               <FilterIcon className="w-4 h-4 text-brand-700" />
@@ -94,7 +131,7 @@ export default async function ShopPage({ searchParams }: PageProps) {
             <ul className="space-y-1">
               <li>
                 <Link
-                  href={occasion ? `/shop?occasion=${occasion}` : "/shop"}
+                  href={clearHref("group")}
                   className={`block px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${
                     !group ? "bg-brand-800 text-gold-soft" : "text-ink-soft hover:bg-brand-50"
                   }`}
@@ -127,7 +164,7 @@ export default async function ShopPage({ searchParams }: PageProps) {
             <ul className="space-y-1">
               <li>
                 <Link
-                  href={group ? `/shop?group=${group}` : "/shop"}
+                  href={clearHref("occasion")}
                   className={`block px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors ${
                     !occasion ? "bg-brand-800 text-gold-soft" : "text-ink-soft hover:bg-brand-50"
                   }`}

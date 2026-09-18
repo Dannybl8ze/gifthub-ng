@@ -195,6 +195,15 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+export function SearchIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={props.className ?? base} {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+  );
+}
+
 export function GroupIconFor({ icon, className }: { icon: string; className?: string }) {
   switch (icon) {
     case "academic": return <AcademicIcon className={className} />;

@@ -316,12 +316,28 @@ export function getOccasion(slug: string): Occasion | undefined {
   return OCCASIONS.find((o) => o.slug === slug);
 }
 
-export function filterProducts(opts: { group?: string | null; occasion?: string | null }): Product[] {
+export function filterProducts(opts: {
+  group?: string | null;
+  occasion?: string | null;
+  q?: string | null;
+}): Product[] {
+  const query = opts.q?.trim().toLowerCase();
   return PRODUCTS.filter((p) => {
     if (opts.group && !p.groups.includes(opts.group as never)) return false;
     if (opts.occasion && !p.occasions.includes(opts.occasion as never)) return false;
+    if (query && !`${p.name} ${p.description}`.toLowerCase().includes(query)) return false;
     return true;
   });
+}
+
+/** Live typeahead search, capped to `limit` results. Used by the navbar search dropdown. */
+export function searchProducts(query: string, limit = 5): Product[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return PRODUCTS.filter((p) => `${p.name} ${p.description}`.toLowerCase().includes(q)).slice(
+    0,
+    limit
+  );
 }
 
 /**

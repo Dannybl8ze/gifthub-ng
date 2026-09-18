@@ -34,7 +34,7 @@ cp .env.example .env.local
 | `/` | Hero, date-aware upcoming occasion banner, group + occasion grids, featured products |
 | `/groups` | All consumer groups |
 | `/occasions` | All occasions |
-| `/shop` | Product listing with sidebar filters (`?group=…&occasion=…`) — supports both at once |
+| `/shop` | Product listing with sidebar search + filters (`?q=…&group=…&occasion=…`) — all three combine |
 | `/shop/[slug]` | Product detail with quantity selector, "for" + "perfect for" chips |
 | `/cart` | Cart with quantity controls, delivery fee, subtotal |
 | `/checkout` | Guest checkout — name, email, phone, address, state, delivery notes, payment method (placeholder) |
@@ -49,6 +49,8 @@ cp .env.example .env.local
 | `/admin/support` | Support inbox — messages from the `/support` form, with a resolve/reopen toggle |
 
 A floating WhatsApp button (bottom-right, hidden on `/admin`) is available site-wide via `components/whatsapp-button.tsx`.
+
+Search is available two ways: a live typeahead in the navbar (`components/search-bar.tsx`, click the search icon on desktop or open the mobile menu) that shows up to 5 matching products as you type, and a plain search field in the `/shop` sidebar that combines with the group/occasion filters via the URL (`?q=…`). Both match against product name + description client-side — there's no backend involved given the catalogue's size.
 
 ## How the data layer works (prototype)
 
@@ -100,7 +102,7 @@ app/
   admin/orders/page.tsx
   admin/support/page.tsx                   # support inbox
 components/                                 # navbar, footer, product-card, product-form, icons,
-                                             # whatsapp-button, etc.
+                                             # whatsapp-button, search-bar, etc.
 lib/
   mock-data.ts                              # groups, occasions, seed products
   types.ts                                  # shared TS types

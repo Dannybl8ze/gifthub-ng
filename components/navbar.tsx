@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { CartIcon, MenuIcon, CloseIcon } from "./icons";
+import { CartIcon, MenuIcon, CloseIcon, SearchIcon } from "./icons";
 import { Logo } from "./logo";
+import { SearchBar } from "./search-bar";
 import { useCart } from "@/lib/cart-context";
 
 const NAV = [
@@ -19,6 +20,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { itemCount } = useCart();
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const isAdmin = pathname?.startsWith("/admin");
   if (isAdmin) return null;
@@ -51,6 +53,22 @@ export function Navbar() {
           </ul>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen((v) => !v);
+                setOpen(false);
+              }}
+              className={`hidden md:inline-flex items-center justify-center h-10 w-10 rounded-xl transition-colors cursor-pointer ${
+                searchOpen
+                  ? "bg-brand-800 text-gold-soft"
+                  : "text-ink-soft hover:bg-brand-50"
+              }`}
+              aria-label={searchOpen ? "Close search" : "Search gifts"}
+              aria-expanded={searchOpen}
+            >
+              <SearchIcon className="w-5 h-5" />
+            </button>
             <Link
               href="/admin"
               className="hidden sm:inline-flex text-xs text-ink-muted hover:text-brand-800 px-2 py-1 rounded cursor-pointer transition-colors"
@@ -71,7 +89,10 @@ export function Navbar() {
             </Link>
             <button
               type="button"
-              onClick={() => setOpen((v) => !v)}
+              onClick={() => {
+                setOpen((v) => !v);
+                setSearchOpen(false);
+              }}
               className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl text-ink-soft hover:bg-brand-50 cursor-pointer"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
@@ -81,8 +102,16 @@ export function Navbar() {
           </div>
         </div>
 
+        {searchOpen && (
+          <div className="hidden md:block mt-2 glass-nav rounded-2xl p-4 animate-fade-up">
+            <SearchBar onNavigate={() => setSearchOpen(false)} />
+          </div>
+        )}
+
         {open && (
-          <div className="md:hidden mt-2 glass-nav rounded-2xl p-2 animate-fade-up">
+          <div className="md:hidden mt-2 glass-nav rounded-2xl p-3 animate-fade-up">
+            <SearchBar onNavigate={() => setOpen(false)} />
+            <div className="h-px bg-line my-3" />
             <ul className="flex flex-col gap-1">
               {NAV.map((item) => {
                 const active =

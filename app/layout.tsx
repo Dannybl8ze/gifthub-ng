@@ -5,7 +5,7 @@ import { Footer } from "@/components/footer";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { CartProvider } from "@/lib/cart-context";
 
-const SITE_URL = "https://gifthub.ng";
+const SITE_URL = "https://gifthub-ng.me";
 const TITLE = "GiftHub NG — Thoughtful gifts for every group & occasion";
 const DESCRIPTION =
   "Curated gift hampers and products for students, professionals, health workers, and faith communities — tailored to birthdays, anniversaries, Valentine's, graduations and more.";

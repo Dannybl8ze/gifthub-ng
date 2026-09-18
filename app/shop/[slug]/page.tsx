@@ -44,7 +44,7 @@ export default async function ProductPage({ params }: PageProps) {
       availability: product.inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      url: `https://gifthub.ng/shop/${product.slug}`,
+      url: `https://gifthub-ng.me/shop/${product.slug}`,
     },
     brand: { "@type": "Brand", name: "GiftHub NG" },
   };

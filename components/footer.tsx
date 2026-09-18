@@ -25,6 +25,7 @@ export function Footer() {
             <h4 className="text-sm font-semibold text-ink mb-3">Customer</h4>
             <ul className="space-y-2 text-sm text-ink-muted">
               <li><Link className="hover:text-brand-800 cursor-pointer" href="/cart">My cart</Link></li>
+              <li><Link className="hover:text-brand-800 cursor-pointer" href="/support">Support</Link></li>
               <li><Link className="hover:text-brand-800 cursor-pointer" href="/admin">Admin</Link></li>
             </ul>
           </div>

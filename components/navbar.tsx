@@ -12,6 +12,7 @@ const NAV = [
   { href: "/shop", label: "Shop all" },
   { href: "/groups", label: "By group" },
   { href: "/occasions", label: "By occasion" },
+  { href: "/support", label: "Support" },
 ];
 
 export function Navbar() {

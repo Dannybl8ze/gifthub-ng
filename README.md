@@ -39,12 +39,16 @@ cp .env.example .env.local
 | `/cart` | Cart with quantity controls, delivery fee, subtotal |
 | `/checkout` | Guest checkout — name, email, phone, address, state, delivery notes, payment method (placeholder) |
 | `/orders/[id]` | Order confirmation with summary + delivery details |
+| `/support` | Customer support — WhatsApp/email/phone, FAQ accordion, contact form |
 | `/admin` | Admin overview — KPIs and latest orders |
 | `/admin/products` | Product CRUD list |
 | `/admin/products/new` | Create product (with image upload from device or URL) |
 | `/admin/products/[id]` | Edit product |
 | `/admin/categories` | Read-only view of all groups and occasions |
 | `/admin/orders` | All orders placed in this browser, with a detail modal |
+| `/admin/support` | Support inbox — messages from the `/support` form, with a resolve/reopen toggle |
+
+A floating WhatsApp button (bottom-right, hidden on `/admin`) is available site-wide via `components/whatsapp-button.tsx`.
 
 ## How the data layer works (prototype)
 
@@ -52,8 +56,9 @@ cp .env.example .env.local
 - **Products** are seeded from `mock-data.ts` and become editable from the admin via `lib/admin-store.ts`, which persists CRUD changes to `localStorage`. Use *Reset to seed* on `/admin/products` to wipe local edits.
 - **Cart** state lives in `lib/cart-context.tsx` (React context + `localStorage`). It persists across pages and tabs in the same browser.
 - **Orders** placed via checkout are stored in the same context and surface on `/admin/orders` and the order confirmation page.
+- **Support messages** submitted via `/support` are stored in `localStorage` through `lib/support-store.ts` and surface on `/admin/support`. Contact details (WhatsApp number, email, phone, FAQ copy) live in `lib/support-data.ts` — **the WhatsApp number there is a placeholder**, replace it before going live.
 
-In production, the admin store, cart, and orders would be replaced with reads/writes through `lib/supabase.ts`. The function `getSupabase()` already returns a configured client when env vars are present — wiring it in is a localised change to those three modules.
+In production, the admin store, cart, orders, and support inbox would be replaced with reads/writes through `lib/supabase.ts`. The function `getSupabase()` already returns a configured client when env vars are present — wiring it in is a localised change to those four modules.
 
 ## Accepted features (vs the brief)
 
@@ -85,6 +90,7 @@ app/
   cart/page.tsx
   checkout/page.tsx
   orders/[id]/page.tsx                     # confirmation
+  support/page.tsx                         # customer support
   admin/layout.tsx
   admin/page.tsx                           # dashboard
   admin/products/page.tsx                  # list
@@ -92,12 +98,16 @@ app/
   admin/products/[id]/page.tsx             # edit
   admin/categories/page.tsx
   admin/orders/page.tsx
-components/                                 # navbar, footer, product-card, product-form, icons, etc.
+  admin/support/page.tsx                   # support inbox
+components/                                 # navbar, footer, product-card, product-form, icons,
+                                             # whatsapp-button, etc.
 lib/
   mock-data.ts                              # groups, occasions, seed products
   types.ts                                  # shared TS types
   format.ts                                 # ₦ formatter, date formatter
   cart-context.tsx                          # cart + orders state
   admin-store.ts                            # admin products store
+  support-data.ts                           # support contact info + FAQ content
+  support-store.ts                          # support inbox store
   supabase.ts                               # optional client
 ```

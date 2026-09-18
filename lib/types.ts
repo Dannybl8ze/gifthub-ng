@@ -79,3 +79,14 @@ export interface Order {
   paymentMethod: "cod" | "transfer" | "card-placeholder";
   status: "pending" | "confirmed" | "fulfilled" | "cancelled";
 }
+
+export interface SupportMessage {
+  id: string;
+  createdAt: string;
+  name: string;
+  email: string;
+  topic: string;
+  orderId?: string;
+  message: string;
+  status: "new" | "resolved";
+}

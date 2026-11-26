@@ -1,18 +1,17 @@
 /**
  * Central place to edit customer-support contact details.
  *
- * The WhatsApp number and phone number below are still PLACEHOLDERS.
- * Replace them with your real WhatsApp Business number and support line
- * before going live — whatsappNumber must include the country code with
- * no "+", spaces, or leading zeros (e.g. Nigeria: 234XXXXXXXXXX).
+ * whatsappNumber must include the country code with no "+", spaces, or
+ * leading zeros (Nigeria: 234XXXXXXXXXX). The display and phone values are
+ * shown to customers as written.
  */
 export const SUPPORT_CONTACT = {
-  whatsappNumber: "2348000000000",
-  whatsappDisplay: "+234 800 000 0000",
+  whatsappNumber: "2348023672672",
+  whatsappDisplay: "+234 802 367 2672",
   email: "support@gifthub-ng.me",
   /** Internal/business mailbox — not yet surfaced anywhere in the UI. */
   adminEmail: "admin-sunday@gifthub-ng.me",
-  phone: "+234 800 000 0000",
+  phone: "+234 802 367 2672",
   hours: "Mon–Sat, 9am–7pm WAT",
 };
 

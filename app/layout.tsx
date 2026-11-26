@@ -3,9 +3,10 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { WhatsAppButton } from "@/components/whatsapp-button";
+import { AssistantWidget } from "@/components/assistant-widget";
 import { CartProvider } from "@/lib/cart-context";
+import { SITE_URL } from "@/lib/site";
 
-const SITE_URL = "https://gifthub-ng.me";
 const TITLE = "GiftHub NG — Thoughtful gifts for every group & occasion";
 const DESCRIPTION =
   "Curated gift hampers and products for students, professionals, health workers, and faith communities — tailored to birthdays, anniversaries, Valentine's, graduations and more.";
@@ -54,10 +55,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="sr-only-focusable">Skip to main content</a>
         <CartProvider>
           <Navbar />
-          <main id="main" className="pt-24 pb-16 min-h-[calc(100vh-180px)]">
+          <main id="main" className="pt-24 pb-16 min-h-[calc(100vh-180px)] overflow-x-clip">
             {children}
           </main>
           <Footer />
+          <AssistantWidget />
           <WhatsAppButton />
         </CartProvider>
       </body>

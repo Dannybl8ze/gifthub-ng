@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PRODUCTS, getConsumerGroup, getOccasion, getProductBySlug } from "@/lib/mock-data";
 import { formatNaira } from "@/lib/format";
+import { SITE_URL } from "@/lib/site";
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductGrid } from "@/components/product-card";
 import { CheckIcon } from "@/components/icons";
@@ -44,7 +45,7 @@ export default async function ProductPage({ params }: PageProps) {
       availability: product.inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      url: `https://gifthub-ng.me/shop/${product.slug}`,
+      url: `${SITE_URL}/shop/${product.slug}`,
     },
     brand: { "@type": "Brand", name: "GiftHub NG" },
   };

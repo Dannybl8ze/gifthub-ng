@@ -16,3 +16,6 @@ __pycache__/
 # Stray downloaded media at repo root (already copied into public/)
 /Animate_the_attached_reference.mp4
 /ElevenLabs_image_*.png
+
+# TypeScript incremental build info
+*.tsbuildinfo

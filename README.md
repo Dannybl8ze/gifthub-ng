@@ -40,6 +40,7 @@ cp .env.example .env.local
 | `/checkout` | Guest checkout — name, email, phone, address, state, delivery notes, payment method (placeholder) |
 | `/orders/[id]` | Order confirmation with summary + delivery details |
 | `/support` | Customer support — WhatsApp/email/phone, FAQ accordion, contact form |
+| `/admin/login` | Admin sign-in (every other `/admin` route redirects here until signed in) |
 | `/admin` | Admin overview — KPIs and latest orders |
 | `/admin/products` | Product CRUD list |
 | `/admin/products/new` | Create product (with image upload from device or URL) |
@@ -58,7 +59,7 @@ Search is available two ways: a live typeahead in the navbar (`components/search
 - **Products** are seeded from `mock-data.ts` and become editable from the admin via `lib/admin-store.ts`, which persists CRUD changes to `localStorage`. Use *Reset to seed* on `/admin/products` to wipe local edits.
 - **Cart** state lives in `lib/cart-context.tsx` (React context + `localStorage`). It persists across pages and tabs in the same browser.
 - **Orders** placed via checkout are stored in the same context and surface on `/admin/orders` and the order confirmation page.
-- **Support messages** submitted via `/support` are stored in `localStorage` through `lib/support-store.ts` and surface on `/admin/support`. Contact details (WhatsApp number, email, phone, FAQ copy) live in `lib/support-data.ts` — **the WhatsApp number there is a placeholder**, replace it before going live.
+- **Support messages** submitted via `/support` are stored in `localStorage` through `lib/support-store.ts` and surface on `/admin/support`. Contact details (WhatsApp number, email, phone, FAQ copy) live in `lib/support-data.ts`.
 
 In production, the admin store, cart, orders, and support inbox would be replaced with reads/writes through `lib/supabase.ts`. The function `getSupabase()` already returns a configured client when env vars are present — wiring it in is a localised change to those four modules.
 
@@ -77,8 +78,25 @@ In production, the admin store, cart, orders, and support inbox would be replace
 ## Scope notes
 
 - Payment is a **placeholder** — no real card processing. The form captures a method choice (card placeholder / bank transfer / cash on delivery) and stores it with the order.
-- Auth is **guest-only** — no accounts. Customers enter their details at checkout.
+- Customers are **guest-only** — no accounts. They enter their details at checkout.
+- The admin console is protected by a single-admin sign-in (see below).
 - Image upload in the admin uses a base64 data URL stored in `localStorage` (sufficient for a prototype). Wire to Supabase Storage in production.
+
+## Admin sign-in
+
+Everything under `/admin` requires a signed-in session. `middleware.ts` checks a signed, HttpOnly cookie (8 hours) and sends anyone else to `/admin/login`. The credentials live in environment variables, not in a database:
+
+| Variable | What it is |
+|---|---|
+| `ADMIN_EMAIL` | The email address you sign in with |
+| `ADMIN_PASSWORD_HASH` | A scrypt hash of your password |
+| `ADMIN_SESSION_SECRET` | Random string (32+ characters) that signs the session cookie |
+
+Run `node scripts/admin-credentials.mjs` in your own terminal. It asks for a password and prints the hash and secret. Set all three variables in Vercel (Settings → Environment Variables) and redeploy. For local use, put them in `.env.local`.
+
+- **Locked until configured.** If any variable is missing, `/admin` stays locked and the login returns "isn't configured yet".
+- **Sign everyone out** by changing `ADMIN_SESSION_SECRET`. **Change the password** by generating a new hash.
+- **Limits.** The failed-attempt brake is in memory, so it only slows guessing on serverless hosting. Use a long password. This guards the admin screens only: orders, products and support messages still live in each browser's `localStorage` until the Supabase move, so the console shows data from the browser you open it in.
 
 ## File map
 

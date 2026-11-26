@@ -16,6 +16,16 @@ const NAV = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  if (pathname === "/admin/login") return <>{children}</>;
+
+  async function signOut() {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } finally {
+      window.location.assign("/admin/login");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-bg">
       <div className="grid lg:grid-cols-[260px_minmax(0,1fr)]">
@@ -46,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               })}
             </ul>
           </nav>
-          <div className="p-4 border-t border-line">
+          <div className="p-4 border-t border-line flex items-center justify-between">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-xs text-ink-muted hover:text-brand-800 cursor-pointer"
@@ -54,6 +64,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <ArrowRightIcon className="w-3 h-3 rotate-180" />
               Back to store
             </Link>
+            <button
+              type="button"
+              onClick={signOut}
+              className="text-xs text-ink-muted hover:text-brand-800 cursor-pointer"
+            >
+              Sign out
+            </button>
           </div>
         </aside>
 
@@ -61,7 +78,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-line">
           <div className="flex items-center justify-between px-4 py-3">
             <Logo size="small" />
-            <Link href="/" className="text-xs text-ink-muted hover:text-brand-800 cursor-pointer">Store →</Link>
+            <div className="flex items-center gap-4">
+              <Link href="/" className="text-xs text-ink-muted hover:text-brand-800 cursor-pointer">Store →</Link>
+              <button
+                type="button"
+                onClick={signOut}
+                className="text-xs text-ink-muted hover:text-brand-800 cursor-pointer"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
           <nav className="px-2 pb-2 overflow-x-auto">
             <ul className="flex gap-1 min-w-max">

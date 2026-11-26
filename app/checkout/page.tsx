@@ -6,10 +6,9 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { getProductById } from "@/lib/mock-data";
 import { formatNaira } from "@/lib/format";
+import { DELIVERY_FEE } from "@/lib/pricing";
 import type { Order } from "@/lib/types";
 import { ArrowRightIcon, CheckIcon } from "@/components/icons";
-
-const DELIVERY_FEE = 2500;
 
 const NIGERIAN_STATES = [
   "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue",

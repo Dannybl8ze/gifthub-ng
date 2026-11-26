@@ -49,7 +49,7 @@ cp .env.example .env.local
 | `/admin/orders` | All orders placed in this browser, with a detail modal |
 | `/admin/support` | Support inbox — messages from the `/support` form, with a resolve/reopen toggle |
 
-A floating WhatsApp button (bottom-right, hidden on `/admin`) is available site-wide via `components/whatsapp-button.tsx`.
+A floating WhatsApp button (bottom-right, hidden on `/admin`) is available site-wide via `components/whatsapp-button.tsx`, with the gift assistant launcher just above it (see [Gift assistant](#gift-assistant)).
 
 Search is available two ways: a live typeahead in the navbar (`components/search-bar.tsx`, click the search icon on desktop or open the mobile menu) that shows up to 5 matching products as you type, and a plain search field in the `/shop` sidebar that combines with the group/occasion filters via the URL (`?q=…`). Both match against product name + description client-side — there's no backend involved given the catalogue's size.
 
@@ -98,6 +98,25 @@ Run `node scripts/admin-credentials.mjs` in your own terminal. It asks for a pas
 - **Sign everyone out** by changing `ADMIN_SESSION_SECRET`. **Change the password** by generating a new hash.
 - **Limits.** The failed-attempt brake is in memory, so it only slows guessing on serverless hosting. Use a long password. This guards the admin screens only: orders, products and support messages still live in each browser's `localStorage` until the Supabase move, so the console shows data from the browser you open it in.
 
+## Gift assistant
+
+A chat widget on every page except `/admin` (`components/assistant-widget.tsx`, launcher above the WhatsApp button). Visitors can ask for gift ideas ("a gift for a nurse under ₦30,000") or shop questions (delivery, payment, damaged items), and get answers plus product cards linking to `/shop/[slug]`. It talks to `app/api/assistant/route.ts`, which works in one of two modes, and the widget header always says which one is live:
+
+| Mode | When | What answers |
+|---|---|---|
+| **AI assistant** | Bedrock credentials are set | An Amazon Bedrock model (Converse API) with the catalogue, FAQ and contact details in its prompt |
+| **Gift finder · simple matching** | No credentials, or a model call fails | A keyword matcher (`lib/assistant/basic.ts`) over the same catalogue and FAQ. No AI, no cost |
+
+**Switching AI on.** In Vercel (Settings → Environment Variables) add `BEDROCK_API_KEY` (or the `BEDROCK_ACCESS_KEY_ID` + `BEDROCK_SECRET_ACCESS_KEY` pair), plus `BEDROCK_REGION` and `BEDROCK_MODEL_ID` if the defaults in `.env.example` don't match the model your account was approved for, then redeploy. Remove the key to switch back. A failed model call (access denied, throttling, 15 s timeout) silently falls back to simple matching, and the reason (status code only, never the visitor's text) is written to the server log.
+
+**Guard rails.**
+- The model only knows what `lib/assistant/knowledge.ts` puts in its prompt. It can't see orders, accounts or payments and is told to hand those to WhatsApp/email.
+- Product cards come from the model's `PRODUCTS:` line, checked against the in-stock catalogue, so it can't surface a product or price that doesn't exist. Prices on cards are the catalogue's, not the model's text.
+- Messages are capped at 400 characters, the last 8 turns are sent, replies at 400 tokens, and `/api/assistant` allows 20 messages per IP per 10 minutes. That counter is in memory per serverless instance, so it slows abuse rather than stopping it: **set an AWS Budget alert on the Bedrock account** as the real spending cap.
+- Cross-site POSTs (Origin that isn't this site) are refused.
+
+**Scope.** The catalogue it knows is the seed catalogue in `lib/mock-data.ts`. Products edited in the admin console live in that browser's `localStorage` and aren't visible to the server until the Supabase move. The delivery fee lives in one place, `lib/pricing.ts`, shared by the cart, checkout and the assistant.
+
 ## File map
 
 ```
@@ -119,9 +138,11 @@ app/
   admin/categories/page.tsx
   admin/orders/page.tsx
   admin/support/page.tsx                   # support inbox
+  api/assistant/route.ts                   # gift assistant endpoint (AI or simple matching)
 components/                                 # navbar, footer, product-card, product-form, icons,
-                                             # whatsapp-button, search-bar, etc.
+                                             # whatsapp-button, assistant-widget, search-bar, etc.
 lib/
+  assistant/                                # knowledge (prompt), basic (matcher), bedrock, respond, types
   mock-data.ts                              # groups, occasions, seed products
   types.ts                                  # shared TS types
   format.ts                                 # ₦ formatter, date formatter

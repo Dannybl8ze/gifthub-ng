@@ -5,9 +5,8 @@ import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
 import { getProductById } from "@/lib/mock-data";
 import { formatNaira } from "@/lib/format";
+import { DELIVERY_FEE } from "@/lib/pricing";
 import { ArrowRightIcon, CartIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/icons";
-
-const DELIVERY_FEE = 2500;
 
 export default function CartPage() {
   const { lines, setQty, removeItem, subtotal, itemCount, clear } = useCart();
